@@ -6,7 +6,7 @@ const hostname = 'localhost';
 
 app.use(express.json());
 
-let restaurants = [{ name: "Bobs Burgers", adresse: "Zum Burgerladen 3, 12345 Burgerhausen", kategorie: "burgerrestaurant"}];
+let restaurants = [{ name: "Bobs Burgers", adresse: "Zum Burgerladen 3, 12345 Burgerhausen", kategorie: "burgerrestaurant" }];
 
 const exists = (name) => {
     let result = restaurants.find((elem) => {
@@ -26,7 +26,7 @@ const exists = (name) => {
 
 function getIndex(name) {
     let index = -1;
-    for (let i=0 ; i<restaurants.length ; i++) {
+    for (let i = 0; i < restaurants.length; i++) {
         if (restaurants[i].name == name) {
             index = i;
         }
@@ -36,7 +36,7 @@ function getIndex(name) {
 
 function delRestaurant(name) {
     const index = getIndex(name);
-    let deleted = restaurants.splice(index,1);
+    let deleted = restaurants.splice(index, 1);
     return deleted;
 }
 
@@ -61,6 +61,7 @@ app.post('/restaurant', (req, res) => {
             res.send("restaurant wurde hinzugefügt");
         } else {
             // element bereits vorhanden
+            res.status(409);
             res.send("restaurant ist bereits gespeichert!");
         }
     }
@@ -117,7 +118,7 @@ app.put('/restaurant/:name', (req, res) => {
             // ersetze alt durch neu
             restaurants[i] = r;
             // neues Restaurant zurückgeben
-            res.send(r); 
+            res.send(r);
             console.log(`Aktualisiere: ${req.params.name}: ${r.name}, ${r.adresse}, ${r.kategorie}.`);
         } else {
             res.status(400);
@@ -128,6 +129,17 @@ app.put('/restaurant/:name', (req, res) => {
         res.send("Restaurant nicht gefunden.")
     }
 });
+
+app.delete('/restaurant/:name', (req, res) => {
+    if (getIndex(req.params.name) != -1) {
+        let del = delRestaurant(req.params.name);
+        res.send("Folgendes Restaurant wurde gelöscht: " + JSON.stringify(del));
+    } else {
+        res.status(404);
+        res.send("Restaurant ist nicht vorhanden.");
+    }
+});
+
 
 app.listen(port, hostname, () => {
     console.log(`Server gestartet ${hostname}:${port}.`);
