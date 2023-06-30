@@ -1,9 +1,12 @@
 const express = require('express');
 const app = express();
+const db = require('better-sqlite3')('restaurants.db');
 
 // connection details
 const port = 3000;
 const hostname = 'localhost';
+
+db.prepare('CREATE TABLE IF NOT EXISTS restaurants (id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL,addresse TEXT,kategorie TEXT)').run();
 
 // bodyparser middleware aktivieren
 app.use(express.json());
@@ -50,7 +53,8 @@ function delRestaurant(name) {
 /* API ENDPUNKTE */
 // alle restaurants abfragen
 app.get('/restaurants', (_, res) => {
-    res.send(restaurants);
+    let result = db.prepare('SELECT * FROM restaurants').all();
+    res.send(result);
 });
 
 // bestimmtes restaurant abfragen
