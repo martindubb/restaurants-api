@@ -6,49 +6,10 @@ const db = require('better-sqlite3')('restaurants.db');
 const port = 3000;
 const hostname = 'localhost';
 
-db.prepare('CREATE TABLE IF NOT EXISTS restaurants (id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL,addresse TEXT,kategorie TEXT)').run();
+db.prepare('CREATE TABLE IF NOT EXISTS restaurants (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL ,addresse TEXT, kategorie TEXT)').run();
 
 // bodyparser middleware aktivieren
 app.use(express.json());
-
-// globales restaurants array, inkl. initialem eintrag
-let restaurants = [{ name: "Bobs Burgers", adresse: "Zum Burgerladen 3, 12345 Burgerhausen", kategorie: "burgerrestaurant" }];
-
-// true/false, ob restaurant mit name schon vorhanden ist
-function exists(name) {
-    let result = restaurants.find((elem) => {
-        if (elem.name == name) {
-            return true;
-        }
-    });
-
-    if (result) {
-        return true;
-    } else {
-        return false;
-    }
-
-    // return result != undefined;
-};
-
-// gibt index eines bestimmten restaurants zurück; -1 falls es nicht existiert
-function getIndex(name) {
-    let index = -1;
-    for (let i = 0; i < restaurants.length; i++) {
-        if (restaurants[i].name == name) {
-            index = i;
-        }
-    }
-    return index;
-}
-
-// löscht ein restaurant aus dem globalen array
-function delRestaurant(name) {
-    const index = getIndex(name);
-    let deleted = restaurants.splice(index, 1);
-    return deleted;
-}
-
 
 /* API ENDPUNKTE */
 // alle restaurants abfragen
@@ -59,21 +20,15 @@ app.get('/restaurants', (_, res) => {
 
 // bestimmtes restaurant abfragen
 app.get('/restaurant/:name', (req, res) => {
-    // variable fuer suchergebnis anlegen (undefined)
-    let result;
-    // suche nach restaurant in liste
-    restaurants.forEach((elem) => {
-        if (elem.name === req.params.name) {
-            // wenn element in liste gefunden, speichere in variable restaurant
-            result = elem;
-        }
-    });
+    // prüfe, ob element bereits in datenbank
+    let result = db.prepare('SELECT * FROM restaurants WHERE name = ?').get(req.params.name);
+
     // gib ergebnis der suche zurück
-    if (result) {
-        res.send(result);
-    } else {
+    if (result === undefined) {
         res.status(404);
         res.send("dieses restaurant existiert nicht");
+    } else {
+        res.send(result);
     }
 });
 
@@ -81,15 +36,15 @@ app.get('/restaurant/:name', (req, res) => {
 app.post('/restaurant', (req, res) => {
     let r = req.body;
     // prüfe, ob alle erforderlichen daten vorhanden sind
-    if (!r.name || !r.adresse || !r.kategorie) {
+    if (!r.name || !r.addresse || !r.kategorie) {
         res.status(400);
-        res.send("objekt ist nicht vollständig! name, adresse oder kategorie fehlt!");
+        res.send("objekt ist nicht vollständig! name, addresse oder kategorie fehlt!");
     } else {
-        // prüfe, ob element bereits in liste
-        let e = exists(r.name);
-        if (!e) {
+        // prüfe, ob element bereits in datenbank
+        let result = db.prepare('SELECT * FROM restaurants WHERE name = ?').get(r.name);
+        if (result === undefined) {
             // nicht vorhanden, füge element hinzu
-            restaurants.push(r);
+            db.prepare('INSERT INTO restaurants (name, addresse, kategorie) VALUES( ?, ?, ?)').run(r.name, r.addresse, r.kategorie);
             res.status(201);
             res.send("restaurant wurde hinzugefügt");
         } else {
@@ -103,33 +58,36 @@ app.post('/restaurant', (req, res) => {
 // bestimmtes restaurant aktualisieren
 app.put('/restaurant/:name', (req, res) => {
     // prüfe, ob restaurant in liste vorhanden ist
-    let i = getIndex(req.params.name);
-    if (i != -1) {
+    let result = db.prepare('SELECT * FROM restaurants WHERE name = ?').get(req.params.name);
+    if (result === undefined) { // restaurant existiert nicht
+        res.status(404);
+        res.send("Restaurant nicht gefunden.")
+    } else { // restaurant existent
         const r = req.body;
-        if (r.name && r.adresse && r.kategorie) {
+        if (r.name && r.addresse && r.kategorie) {
             // ersetze alt durch neu
-            restaurants[i] = r;
+            db.prepare('UPDATE restaurants SET name = ?, addresse = ?, kategorie = ? WHERE name = ?').run(r.name, r.addresse, r.kategorie, r.name);
             // neues Restaurant zurückgeben
             res.send(r);
-            console.log(`Aktualisiere: ${req.params.name}: ${r.name}, ${r.adresse}, ${r.kategorie}.`);
+            console.log(`Aktualisiere: ${req.params.name}: ${r.name}, ${r.addresse}, ${r.kategorie}.`);
         } else {
             res.status(400);
             res.send("Daten unvollständig, nicht aktualisiert.");
         }
-    } else { // restaurant nicht existent
-        res.status(404);
-        res.send("Restaurant nicht gefunden.")
     }
 });
 
 // bestimmtes restaurant löschen
 app.delete('/restaurant/:name', (req, res) => {
-    if (getIndex(req.params.name) != -1) {
-        let del = delRestaurant(req.params.name);
-        res.send("Folgendes Restaurant wurde gelöscht: " + JSON.stringify(del));
-    } else {
+    // prüfe, ob element in datenbank
+    let result = db.prepare('SELECT * FROM restaurants WHERE name = ?').get(req.params.name);
+
+    if (result === undefined) {
         res.status(404);
         res.send("Restaurant ist nicht vorhanden.");
+    } else {
+        db.prepare('DELETE FROM restaurants WHERE name = ?').run(req.params.name);
+        res.send("Folgendes Restaurant wurde gelöscht: " + JSON.stringify(result));
     }
 });
 
