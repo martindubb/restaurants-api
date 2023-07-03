@@ -3,7 +3,7 @@ const express = require('express');
 const app = express();
 const db = require('better-sqlite3')('restaurants.db');
 
-// db verbindungs parameter
+// http-server verbindungs parameter
 const port = 3000;
 const hostname = 'localhost';
 
@@ -77,7 +77,7 @@ app.put('/restaurant/:name', (req, res) => {
     let date_ob = new Date();
     console.log(date_ob.toISOString() + " PUT " + req.params.name);
 
-    // prüfe, ob restaurant in liste vorhanden ist
+    // prüfe, ob restaurant in db vorhanden
     let result = db.prepare('SELECT * FROM restaurants WHERE name = ?').get(req.params.name);
     if (result === undefined) { 
         // restaurant existiert nicht
@@ -105,7 +105,7 @@ app.delete('/restaurant/:name', (req, res) => {
     let date_ob = new Date();
     console.log(date_ob.toISOString() + " DELETE " + req.params.name);
 
-    // prüfe, ob element in datenbank
+    // prüfe, ob restaurant in datenbank
     let result = db.prepare('SELECT * FROM restaurants WHERE name = ?').get(req.params.name);
     if (result === undefined) {
         res.status(404);
@@ -120,4 +120,11 @@ app.delete('/restaurant/:name', (req, res) => {
 // server starten
 app.listen(port, hostname, () => {
     console.log(`Server gestartet ${hostname}:${port}.`);
+});
+
+// verbindung zur datenbank trennen
+process.on('SIGINT', () => {
+    db.close();
+    console.log("verbindung zur datenbank getrennt.");
+    process.exit();
 });
