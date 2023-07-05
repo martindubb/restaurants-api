@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Restaurant Verzeichnis</title>
+    <link href="style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Restaurant Verzeichnis</h1>
+
+        <button class="button" id="showAllBtn">Alle anzeigen</button>
+
+        <form id="showForm">
+            <h3>Anzeigen</h3>
+            <input type="text" id="restaurantShowName" name="restaurantShowName" placeholder="Name eingeben" required>
+            <br>
+            <button class="button" id="showBtn">Anzeigen</button>
+        </form>
+
+        <form id="deleteForm">
+            <h3>Löschen</h3>
+            <input type="text" id="restaurantDeleteName" name="restaurantDeleteName" placeholder="Name eingeben" required>
+            <br>
+            <button class="button" id="deleteBtn">Löschen</button>
+        </form>
+
+        <div class="moreForms">
+            <form id="addForm" class="innerform">
+                <h3>Hinzufügen</h3>
+                <label for="addName">Name:</label>
+                <input type="text" id="addName" name="addName" placeholder="Name eingeben" required>
+                <br>
+                <label for="addAdresse">Adresse:</label>
+                <input type="text" id="addAdresse" name="addAdresse" placeholder="Adresse eingeben" required>
+                <br>
+                <label for="addKategorie">Kategorie:</label>
+                <input type="text" id="addKategorie" name="addKategorie" placeholder="Kategorie eingeben" required>
+                <br>
+                <button class="button" id="addBtn">Hinzufügen</button>
+            </form>
+
+            <form id="updateForm" class="innerform">
+                <h3>Ändern</h3>
+                <label for="updateIdentifier">Name (alt):</label>
+                <input type="text" id="updateIdentifier" name="updateIdentifier" placeholder="Name eingeben" required>
+                <br>
+                <label for="updateName">Name (neu):</label>
+                <input type="text" id="updateName" name="updateName" placeholder="Name eingeben" required>
+                <br>
+                <label for="updateAdresse">Adresse:</label>
+                <input type="text" id="updateAdresse" name="updateAdresse" placeholder="Adresse eingeben" required>
+                <br>
+                <label for="updateKategorie">Kategorie:</label>
+                <input type="text" id="updateKategorie" name="updateKategorie" placeholder="Kategorie eingeben" required>
+                <br>
+                <button class="button" id="updateBtn">Ändern</button>
+            </form>
+        </div>
+    </div>
+
+    <hr>
+
+    <div id="result"></div>
+
+    <script type="text/javascript" src="script.js"></script>
+</body>
+
+</html>
