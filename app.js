@@ -10,8 +10,14 @@ const hostname = 'localhost';
 // db table creation string
 db.prepare('CREATE TABLE IF NOT EXISTS restaurants (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL ,addresse TEXT, kategorie TEXT)').run();
 
-// bodyparser middleware aktivieren
+// middleware aktivieren
 app.use(express.json());
+// TODO: activate static files
+
+/* FRONTEND */
+
+// TODO: serve static files
+
 
 /* API ENDPUNKTE */
 
@@ -38,7 +44,7 @@ app.get('/restaurant/:name', (req, res) => {
     // gib ergebnis der suche zurück
     if (result === undefined) {
         res.status(404);
-        res.send("dieses restaurant existiert nicht");
+        res.send({"message": "Restaurant nicht gefunden!"});
     } else {
         res.send(result);
     }
@@ -54,7 +60,7 @@ app.post('/restaurant', (req, res) => {
     // prüfe, ob alle erforderlichen daten vorhanden sind
     if (!r.name || !r.addresse || !r.kategorie) {
         res.status(400);
-        res.send("objekt ist nicht vollständig! name, addresse oder kategorie fehlt!");
+        res.send({"message": "Objekt unvollständig: name, addresse oder kategorie fehlt!"});
     } else {
         // prüfe, ob element bereits in datenbank
         let result = db.prepare('SELECT * FROM restaurants WHERE name = ?').get(r.name);
@@ -62,11 +68,11 @@ app.post('/restaurant', (req, res) => {
             // nicht vorhanden, füge restaurant hinzu
             db.prepare('INSERT INTO restaurants (name, addresse, kategorie) VALUES( ?, ?, ?)').run(r.name, r.addresse, r.kategorie);
             res.status(201);
-            res.send("restaurant wurde hinzugefügt");
+            res.send({"message": "Restaurant hinzugefügt: " + r.name});
         } else {
             // restaurant bereits vorhanden
             res.status(409);
-            res.send("restaurant ist bereits gespeichert!");
+            res.send({"message": "Restaurant bereits vorhanden: " + r.name});
         }
     }
 });
@@ -82,7 +88,7 @@ app.put('/restaurant/:name', (req, res) => {
     if (result === undefined) { 
         // restaurant existiert nicht
         res.status(404);
-        res.send("Restaurant nicht gefunden.")
+        res.send({"message": "Restaurant nicht gefunden!"});
     } else { 
         // restaurant existent
         const r = req.body;
@@ -90,11 +96,11 @@ app.put('/restaurant/:name', (req, res) => {
             // ersetze alt durch neu
             db.prepare('UPDATE restaurants SET name = ?, addresse = ?, kategorie = ? WHERE name = ?').run(r.name, r.addresse, r.kategorie, r.name);
             // neues restaurant zurückgeben
-            res.send(r);
             console.log(`Aktualisiere: ${req.params.name}: ${r.name}, ${r.addresse}, ${r.kategorie}.`);
+            res.send({"message": "Restaurant aktualisiert: " + r.name});
         } else {
             res.status(400);
-            res.send("Daten unvollständig, nicht aktualisiert.");
+            res.send({"message": "Objekt unvollständig: name, addresse oder kategorie fehlt!"});
         }
     }
 });
@@ -109,11 +115,11 @@ app.delete('/restaurant/:name', (req, res) => {
     let result = db.prepare('SELECT * FROM restaurants WHERE name = ?').get(req.params.name);
     if (result === undefined) {
         res.status(404);
-        res.send("Restaurant ist nicht vorhanden.");
+        res.send({"message": "Restaurant nicht gefunden!"});
     } else {
         // loesche restaurant
         db.prepare('DELETE FROM restaurants WHERE name = ?').run(req.params.name);
-        res.send("Folgendes Restaurant wurde gelöscht: " + JSON.stringify(result));
+        res.send({"message": "Restaurant gelöscht: " + req.params.name});
     }
 });
 
