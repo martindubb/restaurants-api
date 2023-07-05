@@ -12,12 +12,7 @@ db.prepare('CREATE TABLE IF NOT EXISTS restaurants (id INTEGER PRIMARY KEY AUTOI
 
 // middleware aktivieren
 app.use(express.json());
-// TODO: activate static files
-
-/* FRONTEND */
-
-// TODO: serve static files
-
+app.use(express.static(__dirname + '/assets'));
 
 /* API ENDPUNKTE */
 
@@ -94,7 +89,7 @@ app.put('/restaurant/:name', (req, res) => {
         const r = req.body;
         if (r.name && r.addresse && r.kategorie) {
             // ersetze alt durch neu
-            db.prepare('UPDATE restaurants SET name = ?, addresse = ?, kategorie = ? WHERE name = ?').run(r.name, r.addresse, r.kategorie, r.name);
+            db.prepare('UPDATE restaurants SET name = ?, addresse = ?, kategorie = ? WHERE name = ?').run(r.name, r.addresse, r.kategorie, req.params.name);
             // neues restaurant zurückgeben
             console.log(`Aktualisiere: ${req.params.name}: ${r.name}, ${r.addresse}, ${r.kategorie}.`);
             res.send({"message": "Restaurant aktualisiert: " + r.name});

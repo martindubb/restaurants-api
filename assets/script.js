@@ -36,36 +36,99 @@ function showMessage(message) {
 }
 
 showAllBtn.addEventListener('click', () => {
-    // TODO: 
     // fetch data from backend
-    // check response + display message / cards
+    fetch('/restaurants')
+    .then((response) => {
+        return response.json();
+    })
+    .then((result) => {
+        // check response + display cards
+        resultDiv.innerHTML = "";
+        result.forEach((obj) => {
+            addCard(obj);
+        });
+    });
 });
 
 showForm.addEventListener('submit', (event) => {
     event.preventDefault(); // Verhindere das automatische Absenden des Formulars
-    // TODO: 
+    let n = document.getElementById("restaurantShowName").value;
     // fetch data from backend
-    // check response + display message / cards
+    fetch('/restaurant/' + n)
+    .then((response) => {
+        if(response.status != 200) {
+            new Error(response.json());
+        } else {
+            return response.json();
+        }
+    })
+    .then((result) => {
+        // check response + display cards
+        resultDiv.innerHTML = "";
+        addCard(result);
+    })
+    .catch((error) => {
+        resultDiv.innerHTML = "";
+        showMessage(error);    
+    });
 });
-
 
 deleteForm.addEventListener('submit', (event) => {
     event.preventDefault(); // Verhindere das automatische Absenden des Formulars
-    // TODO: 
+    let n = document.getElementById("restaurantDeleteName").value;
     // fetch data from backend
-    // check response + display message / cards
+    fetch('/restaurant/' + n, { method: 'DELETE' })
+    .then((response) => {
+        return response.json();
+    })
+    .then((result) => {
+        // check response + display cards
+        resultDiv.innerHTML = "";
+        showMessage(result.message);
+    });
 });
 
 addForm.addEventListener('submit', (event) => {
     event.preventDefault(); // Verhindere das automatische Absenden des Formulars
-    // TODO: 
+    let name = document.getElementById("addName").value;
+    let addresse = document.getElementById("addAdresse").value;
+    let kategorie = document.getElementById("addKategorie").value;
+    let data = JSON.stringify({ "name": name, "addresse": addresse, "kategorie": kategorie });
+
+    var myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+
     // fetch data from backend
-    // check response + display message / cards
+    fetch('/restaurant', { method: 'POST', body: data, headers: myHeaders })
+    .then((response) => {
+        return response.json();
+    })
+    .then((result) => {
+        // check response + display cards
+        resultDiv.innerHTML = "";
+        showMessage(result.message);
+    });
 });
 
 updateForm.addEventListener('submit', (event) => {
     event.preventDefault(); // Verhindere das automatische Absenden des Formulars
-    // TODO: 
+    let name_alt = document.getElementById("updateIdentifier").value;
+    let name_neu = document.getElementById("updateName").value;
+    let addresse = document.getElementById("updateAdresse").value;
+    let kategorie = document.getElementById("updateKategorie").value;
+    let data = JSON.stringify({ "name": name_neu, "addresse": addresse, "kategorie": kategorie });
+
+    var myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+
     // fetch data from backend
-    // check response + display message / cards
+    fetch('/restaurant/' + name_alt, { method: 'PUT', body: data, headers: myHeaders })
+    .then((response) => {
+        return response.json();
+    })
+    .then((result) => {
+        // check response + display cards
+        resultDiv.innerHTML = "";
+        showMessage(result.message);
+    });
 });
