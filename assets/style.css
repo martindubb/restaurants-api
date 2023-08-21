@@ -22,11 +22,7 @@ body {
 .button {
     display: inline-block;
     padding: 10px 20px;
-<<<<<  background-color: #00FF00;<< HEAD
-    background-color: #aba61d;
-=======
     background-color: #1dab85;
->>>>>>> feature/example-conflict
     color: white;
     border: none;
     cursor: pointer;
@@ -35,6 +31,7 @@ body {
     margin: 10px;
     font-size: 16px;
 }
+
 
 #result {
     margin-top: 20px;
