@@ -22,7 +22,7 @@ body {
 .button {
     display: inline-block;
     padding: 10px 20px;
-    background-color: #4CAF50;
+    background-color: blue;
     color: white;
     border: none;
     cursor: pointer;
@@ -32,6 +32,18 @@ body {
     font-size: 16px;
 }
 
+.button#deleteBtn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: red;
+    color: white;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    margin: 10px;
+    font-size: 16px;
+}
 #result {
     margin-top: 20px;
     text-align: center;
